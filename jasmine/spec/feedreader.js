@@ -96,22 +96,34 @@ $(function() {
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
-        var prevHeader = $('.header-title').text();
-        var prevEntry = $('.feed .entry')[0];
+
         var newEntry;
         var newHeader;
+        var prevHeader;
+        var prevEntry;
+
         beforeEach(function(done) {
-            // $('a[data-id=1]').trigger('click') customized
-            loadFeed(1, function() {
-                newHeader = $('.header-title').text();
-                newEntry = $('.feed .entry')[0];
-                done();
-            });
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000; // Because of slow internet connection I have to make sure two feeds are loaded timeout is doubled.
+            loadFeed(0, function() {
+                prevHeader = $('.header-title').text();
+                prevEntry = $('.feed .entry')[0];
+                loadFeed(1, function() {
+                    newHeader = $('.header-title').text();
+                    newEntry = $('.feed .entry')[0];
+                    done();
+                })
+            })
         });
+        // Thanks to the reviewer for suggesting better way.
+
         it("ensures feed is loaded by loadFeed and content is changed", function() {
             expect(newHeader).not.toBe(prevHeader);
             expect(newEntry).not.toBe(prevEntry);
             expect($('.header-title').text()).toBe(allFeeds[1].name);
         });
+
+        afterEach(function() {
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000;
+        })
     });
 }());
